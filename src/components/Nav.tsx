@@ -74,6 +74,12 @@ export default function Nav() {
         </Link>
 
         <div className="flex items-center gap-4">
+          <Link
+            href="/about"
+            className="font-mono text-xs text-text-tertiary hover:text-text transition-colors"
+          >
+            About
+          </Link>
           {session ? (
             <>
               <Link
