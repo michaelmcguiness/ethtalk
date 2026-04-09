@@ -3,6 +3,14 @@
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import ThreadRow from "./ThreadRow";
+import SponsoredRow from "./SponsoredRow";
+
+interface SponsoredAd {
+  id: string;
+  title: string;
+  url: string;
+  domain: string;
+}
 
 const TAGS = [
   { value: "", label: "All" },
@@ -33,8 +41,19 @@ interface ThreadItem {
 export default function ForumHome() {
   const { data: session } = useSession();
   const [threads, setThreads] = useState<ThreadItem[]>([]);
+  const [sponsoredAd, setSponsoredAd] = useState<SponsoredAd | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTag, setActiveTag] = useState("");
+
+  // Fetch sponsored ad once
+  useEffect(() => {
+    fetch("/api/ads/current")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data && data.id) setSponsoredAd(data);
+      })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     setLoading(true);
@@ -96,6 +115,14 @@ export default function ForumHome() {
         </div>
       ) : (
         <div className="bg-surface border border-border rounded-[10px]">
+          {sponsoredAd && (
+            <SponsoredRow
+              id={sponsoredAd.id}
+              title={sponsoredAd.title}
+              url={sponsoredAd.url}
+              domain={sponsoredAd.domain}
+            />
+          )}
           {threads.map((thread, i) => (
             <ThreadRow
               key={thread.id}

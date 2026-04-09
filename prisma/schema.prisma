@@ -19,10 +19,12 @@ model User {
   isBanned       Boolean  @default(false)
   role           Role     @default(MEMBER)
 
-  threads     Thread[]
-  posts       Post[]
-  votes       Vote[]
-  threadVotes ThreadVote[]
+  threads        Thread[]
+  posts          Post[]
+  votes          Vote[]
+  threadVotes    ThreadVote[]
+  sponsoredLinks SponsoredLink[]
+  adFlags        AdFlag[]
 
   @@index([address])
 }
@@ -107,4 +109,67 @@ enum Tag {
   L2S
   DEV
   GENERAL
+}
+
+model SponsoredLink {
+  id           String   @id @default(cuid())
+  title        String
+  url          String
+  domain       String
+  date         DateTime @unique
+  isActive     Boolean  @default(true)
+  isFlagged    Boolean  @default(false)
+  flagCount    Int      @default(0)
+
+  buyerAddress String
+  buyer        User     @relation(fields: [buyerAddress], references: [address])
+
+  txHash       String   @unique
+  pricePaidWei String
+
+  impressions  Int      @default(0)
+  clicks       Int      @default(0)
+
+  createdAt    DateTime @default(now())
+
+  events       AdEvent[]
+  flags        AdFlag[]
+
+  @@index([date])
+  @@index([buyerAddress])
+}
+
+model AdEvent {
+  id              String        @id @default(cuid())
+  sponsoredLinkId String
+  sponsoredLink   SponsoredLink @relation(fields: [sponsoredLinkId], references: [id])
+  userAddress     String
+  eventType       String
+  date            DateTime
+  createdAt       DateTime      @default(now())
+
+  @@unique([sponsoredLinkId, userAddress, eventType, date])
+  @@index([sponsoredLinkId, eventType])
+}
+
+model AdFlag {
+  id              String        @id @default(cuid())
+  sponsoredLinkId String
+  sponsoredLink   SponsoredLink @relation(fields: [sponsoredLinkId], references: [id])
+  flaggerAddress  String
+  flagger         User          @relation(fields: [flaggerAddress], references: [address])
+  reason          String?
+  createdAt       DateTime      @default(now())
+
+  @@unique([sponsoredLinkId, flaggerAddress])
+}
+
+model PendingRefund {
+  id           String   @id @default(cuid())
+  txHash       String
+  buyerAddress String
+  amountWei    String
+  reason       String
+  resolved     Boolean  @default(false)
+  createdAt    DateTime @default(now())
 }

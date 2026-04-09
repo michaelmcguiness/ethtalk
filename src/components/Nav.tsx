@@ -77,6 +77,12 @@ export default function Nav() {
           {session ? (
             <>
               <Link
+                href="/advertise"
+                className="font-mono text-xs text-text-tertiary hover:text-text transition-colors"
+              >
+                Advertise
+              </Link>
+              <Link
                 href="/new"
                 className="font-mono text-xs bg-text text-surface px-3 py-1.5 rounded-lg hover:bg-text/90 transition-colors"
               >
